@@ -1,0 +1,7 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/393 [00:00<?, ?it/s]Loading weights: 100%|██████████| 393/393 [00:00<00:00, 7115.71it/s]
+Ranking:
+  1: 0.995263 | nghi_phep_nam_v2024.md
+  2: 0.000896 | mat_khau_v2.md
+  3: 0.000017 | vpn_truy_cap.md
+Latency (5 runs): avg_ms=179.96, min_ms=174.79, max_ms=187.11

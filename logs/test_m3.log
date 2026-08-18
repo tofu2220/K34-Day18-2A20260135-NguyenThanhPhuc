@@ -1,0 +1,14 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.16, pytest-9.1.1, pluggy-1.6.0 -- /home/tofu/Projects/K34-Day18-2A20260135-NguyenThanhPhuc/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/tofu/Projects/K34-Day18-2A20260135-NguyenThanhPhuc
+plugins: anyio-4.14.2
+collecting ... collected 5 items
+
+tests/test_m3.py::test_rerank_returns PASSED                             [ 20%]
+tests/test_m3.py::test_rerank_type PASSED                                [ 40%]
+tests/test_m3.py::test_rerank_sorted PASSED                              [ 60%]
+tests/test_m3.py::test_rerank_relevant_first PASSED                      [ 80%]
+tests/test_m3.py::test_benchmark_stats PASSED                            [100%]
+
+======================== 5 passed in 323.12s (0:05:23) =========================
