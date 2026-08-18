@@ -1,0 +1,22 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.16, pytest-9.1.1, pluggy-1.6.0 -- /home/tofu/Projects/K34-Day18-2A20260135-NguyenThanhPhuc/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/tofu/Projects/K34-Day18-2A20260135-NguyenThanhPhuc
+plugins: anyio-4.14.2
+collecting ... collected 13 items
+
+tests/test_m1.py::test_basic_returns_chunks PASSED                       [  7%]
+tests/test_m1.py::test_basic_type PASSED                                 [ 15%]
+tests/test_m1.py::test_semantic_returns_chunks PASSED                    [ 23%]
+tests/test_m1.py::test_semantic_type PASSED                              [ 30%]
+tests/test_m1.py::test_semantic_groups_by_topic PASSED                   [ 38%]
+tests/test_m1.py::test_hierarchical_returns_both PASSED                  [ 46%]
+tests/test_m1.py::test_hierarchical_children_have_parent_id PASSED       [ 53%]
+tests/test_m1.py::test_hierarchical_valid_parent_ids PASSED              [ 61%]
+tests/test_m1.py::test_hierarchical_children_smaller PASSED              [ 69%]
+tests/test_m1.py::test_structure_returns_chunks PASSED                   [ 76%]
+tests/test_m1.py::test_structure_preserves_headers PASSED                [ 84%]
+tests/test_m1.py::test_structure_has_section_metadata PASSED             [ 92%]
+tests/test_m1.py::test_compare_all_strategies PASSED                     [100%]
+
+============================= 13 passed in 31.80s ==============================
