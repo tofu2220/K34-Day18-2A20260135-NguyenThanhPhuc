@@ -1,0 +1,10 @@
+/home/tofu/Projects/K34-Day18-2A20260135-NguyenThanhPhuc/src/m4_eval.py:83: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the langchain-huggingface package and should be used instead. To use it run `pip install -U langchain-huggingface` and import as `from langchain_huggingface import HuggingFaceEmbeddings`.
+  embeddings = HuggingFaceEmbeddings(
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 5901.66it/s]
+Evaluating:   0%|          | 0/4 [00:00<?, ?it/s]Evaluating:  25%|██▌       | 1/4 [00:02<00:08,  2.84s/it]Evaluating:  50%|█████     | 2/4 [00:03<00:03,  1.69s/it]Evaluating: 100%|██████████| 4/4 [00:05<00:00,  1.04s/it]Evaluating: 100%|██████████| 4/4 [00:05<00:00,  1.26s/it]
+faithfulness=1.0000
+answer_relevancy=0.9418
+context_precision=1.0000
+context_recall=1.0000
+Live OpenRouter M4 RAGAS smoke test passed

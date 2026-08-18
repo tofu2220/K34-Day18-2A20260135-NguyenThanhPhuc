@@ -1,0 +1,19 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.16, pytest-9.1.1, pluggy-1.6.0 -- /home/tofu/Projects/K34-Day18-2A20260135-NguyenThanhPhuc/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/tofu/Projects/K34-Day18-2A20260135-NguyenThanhPhuc
+plugins: anyio-4.14.2
+collecting ... collected 10 items
+
+tests/test_m5.py::test_summarize_returns_string PASSED                   [ 10%]
+tests/test_m5.py::test_summarize_shorter_than_original PASSED            [ 20%]
+tests/test_m5.py::test_hyqa_returns_list PASSED                          [ 30%]
+tests/test_m5.py::test_hyqa_generates_questions PASSED                   [ 40%]
+tests/test_m5.py::test_contextual_prepend_returns_string PASSED          [ 50%]
+tests/test_m5.py::test_contextual_contains_original PASSED               [ 60%]
+tests/test_m5.py::test_extract_metadata_returns_dict PASSED              [ 70%]
+tests/test_m5.py::test_enrich_chunks_returns_list PASSED                 [ 80%]
+tests/test_m5.py::test_enrich_chunks_type PASSED                         [ 90%]
+tests/test_m5.py::test_enrich_preserves_original PASSED                  [100%]
+
+============================== 10 passed in 0.03s ==============================

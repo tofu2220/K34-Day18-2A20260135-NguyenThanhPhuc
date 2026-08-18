@@ -8,7 +8,7 @@ Làm giàu chunks TRƯỚC khi embed: Summarize, HyQA, Contextual Prepend, Auto 
 Test: pytest tests/test_m5.py
 """
 
-import os, sys
+import os, sys, json, re
 from dataclasses import dataclass, field
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -26,6 +26,71 @@ class EnrichedChunk:
     method: str  # "contextual", "summary", "hyqa", "full"
 
 
+def _chat(messages: list[dict], max_tokens: int) -> str:
+    """Call the configured OpenRouter model and return plain response text."""
+    client = create_llm_client()
+    if client is None:
+        return ""
+    response = client.chat.completions.create(
+        model=OPENROUTER_MODEL,
+        messages=messages,
+        max_tokens=max_tokens,
+        temperature=0,
+    )
+    return (response.choices[0].message.content or "").strip()
+
+
+def _parse_json_object(value: str) -> dict:
+    """Parse a JSON object, accepting common Markdown fenced responses."""
+    cleaned = value.strip()
+    if cleaned.startswith("```"):
+        cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned, flags=re.IGNORECASE)
+        cleaned = re.sub(r"\s*```$", "", cleaned)
+    try:
+        parsed = json.loads(cleaned)
+    except (json.JSONDecodeError, TypeError):
+        match = re.search(r"\{.*\}", cleaned, flags=re.DOTALL)
+        if not match:
+            return {}
+        try:
+            parsed = json.loads(match.group(0))
+        except json.JSONDecodeError:
+            return {}
+    return parsed if isinstance(parsed, dict) else {}
+
+
+def _extractive_summary(text: str) -> str:
+    sentences = [
+        sentence.strip()
+        for sentence in re.split(r"(?<=[.!?])\s+|\n+", text.strip())
+        if sentence.strip()
+    ]
+    return " ".join(sentences[:2]) if sentences else text.strip()
+
+
+def _fallback_questions(text: str, n_questions: int) -> list[str]:
+    statements = [
+        statement.strip().rstrip(".?!")
+        for statement in re.split(r"[.!?\n]+", text)
+        if len(statement.strip()) > 10
+    ]
+    return [f"{statement}?" for statement in statements[:max(n_questions, 0)]]
+
+
+def _fallback_metadata(text: str) -> dict:
+    lowered = text.lower()
+    categories = {
+        "it": ("mật khẩu", "vpn", "malware", "bảo mật", "cntt"),
+        "finance": ("lương", "chi phí", "tạm ứng", "thanh toán", "vnđ"),
+        "hr": ("nhân viên", "nghỉ phép", "thử việc", "đào tạo"),
+    }
+    category = next(
+        (name for name, keywords in categories.items() if any(word in lowered for word in keywords)),
+        "policy",
+    )
+    return {"topic": "general", "entities": [], "category": category, "language": "vi"}
+
+
 # ─── Technique 1: Chunk Summarization ────────────────────
 
 
@@ -34,27 +99,17 @@ def summarize_chunk(text: str) -> str:
     Tạo summary ngắn cho chunk.
     Embed summary thay vì (hoặc cùng với) raw chunk → giảm noise.
     """
-    # TODO: Implement chunk summarization
-    # if OPENROUTER_API_KEY:
-    #     try:
-    #         from openai import OpenAI
-    #         client = create_llm_client()
-    #         resp = client.chat.completions.create(
-    #             model=OPENROUTER_MODEL,
-    #             messages=[
-    #                 {"role": "system", "content": "Tóm tắt đoạn văn sau trong 2-3 câu ngắn gọn bằng tiếng Việt."},
-    #                 {"role": "user", "content": text},
-    #             ],
-    #             max_tokens=150,
-    #         )
-    #         return resp.choices[0].message.content.strip()
-    #     except Exception as e:
-    #         print(f"  ⚠️  OpenRouter summarize failed: {e}")
-    #
-    # Extractive fallback (không cần API):
-    # sentences = [s.strip() for s in text.replace("\n", " ").split(". ") if s.strip()]
-    # return ". ".join(sentences[:2]) + "." if sentences else text
-    return text
+    if OPENROUTER_API_KEY:
+        try:
+            result = _chat([
+                {"role": "system", "content": "Tóm tắt đoạn văn sau trong 2-3 câu ngắn gọn bằng tiếng Việt."},
+                {"role": "user", "content": text},
+            ], max_tokens=150)
+            if result:
+                return result
+        except Exception as error:
+            print(f"  ⚠️  OpenRouter summarize failed: {error}")
+    return _extractive_summary(text)
 
 
 # ─── Technique 2: Hypothesis Question-Answer (HyQA) ─────
@@ -65,29 +120,24 @@ def generate_hypothesis_questions(text: str, n_questions: int = 3) -> list[str]:
     Generate câu hỏi mà chunk có thể trả lời.
     Index cả questions lẫn chunk → query match tốt hơn (bridge vocabulary gap).
     """
-    # TODO: Implement HyQA generation
-    # if OPENROUTER_API_KEY:
-    #     try:
-    #         from openai import OpenAI
-    #         client = create_llm_client()
-    #         resp = client.chat.completions.create(
-    #             model=OPENROUTER_MODEL,
-    #             messages=[
-    #                 {"role": "system", "content": f"Dựa trên đoạn văn, tạo {n_questions} câu hỏi mà đoạn văn có thể trả lời. Trả về mỗi câu hỏi trên 1 dòng."},
-    #                 {"role": "user", "content": text},
-    #             ],
-    #             max_tokens=200,
-    #         )
-    #         questions = resp.choices[0].message.content.strip().split("\n")
-    #         return [q.strip().lstrip("0123456789.-) ") for q in questions if q.strip()][:n_questions]
-    #     except Exception as e:
-    #         print(f"  ⚠️  OpenRouter HyQA failed: {e}")
-    #
-    # Extractive fallback:
-    # import re
-    # sentences = [s.strip() for s in re.split(r'[.!?\n]', text) if len(s.strip()) > 10]
-    # return [f"{s.rstrip('.')}?" for s in sentences[:n_questions]]
-    return []
+    if n_questions <= 0:
+        return []
+    if OPENROUTER_API_KEY:
+        try:
+            result = _chat([
+                {"role": "system", "content": f"Dựa trên đoạn văn, tạo {n_questions} câu hỏi mà đoạn văn có thể trả lời. Trả về mỗi câu hỏi trên một dòng."},
+                {"role": "user", "content": text},
+            ], max_tokens=200)
+            questions = [
+                re.sub(r"^\s*(?:[-*]|\d+[.)])\s*", "", line).strip()
+                for line in result.splitlines()
+                if line.strip()
+            ]
+            if questions:
+                return questions[:n_questions]
+        except Exception as error:
+            print(f"  ⚠️  OpenRouter HyQA failed: {error}")
+    return _fallback_questions(text, n_questions)
 
 
 # ─── Technique 3: Contextual Prepend (Anthropic style) ──
@@ -98,28 +148,18 @@ def contextual_prepend(text: str, document_title: str = "") -> str:
     Prepend context giải thích chunk nằm ở đâu trong document.
     Anthropic benchmark: giảm 49% retrieval failure (alone).
     """
-    # TODO: Implement contextual prepend
-    # if OPENROUTER_API_KEY:
-    #     try:
-    #         from openai import OpenAI
-    #         client = create_llm_client()
-    #         resp = client.chat.completions.create(
-    #             model=OPENROUTER_MODEL,
-    #             messages=[
-    #                 {"role": "system", "content": "Viết 1 câu ngắn mô tả đoạn văn này nằm ở đâu trong tài liệu và nói về chủ đề gì. Chỉ trả về 1 câu."},
-    #                 {"role": "user", "content": f"Tài liệu: {document_title}\n\nĐoạn văn:\n{text}"},
-    #             ],
-    #             max_tokens=80,
-    #         )
-    #         context = resp.choices[0].message.content.strip()
-    #         return f"{context}\n\n{text}"
-    #     except Exception as e:
-    #         print(f"  ⚠️  OpenRouter contextual failed: {e}")
-    #
-    # Simple fallback:
-    # prefix = f"Trích từ {document_title}. " if document_title else ""
-    # return f"{prefix}{text}"
-    return text
+    if OPENROUTER_API_KEY:
+        try:
+            context = _chat([
+                {"role": "system", "content": "Viết một câu ngắn mô tả đoạn văn nằm ở đâu trong tài liệu và nói về chủ đề gì. Chỉ trả về một câu."},
+                {"role": "user", "content": f"Tài liệu: {document_title}\n\nĐoạn văn:\n{text}"},
+            ], max_tokens=80)
+            if context:
+                return f"{context}\n\n{text}"
+        except Exception as error:
+            print(f"  ⚠️  OpenRouter contextual failed: {error}")
+    prefix = f"Trích từ {document_title}.\n\n" if document_title else ""
+    return f"{prefix}{text}"
 
 
 # ─── Technique 4: Auto Metadata Extraction ──────────────
@@ -129,26 +169,18 @@ def extract_metadata(text: str) -> dict:
     """
     LLM extract metadata tự động: topic, entities, date_range, category.
     """
-    # TODO: Implement auto metadata extraction
-    # if OPENROUTER_API_KEY:
-    #     try:
-    #         import json as _json
-    #         from openai import OpenAI
-    #         client = create_llm_client()
-    #         resp = client.chat.completions.create(
-    #             model=OPENROUTER_MODEL,
-    #             messages=[
-    #                 {"role": "system", "content": 'Trích xuất metadata từ đoạn văn. Trả về JSON: {"topic": "...", "entities": ["..."], "category": "policy|hr|it|finance", "language": "vi|en"}'},
-    #                 {"role": "user", "content": text},
-    #             ],
-    #             max_tokens=150,
-    #         )
-    #         return _json.loads(resp.choices[0].message.content)
-    #     except Exception as e:
-    #         print(f"  ⚠️  OpenRouter metadata failed: {e}")
-    #
-    # return {"topic": "general", "entities": [], "category": "policy", "language": "vi"}
-    return {}
+    if OPENROUTER_API_KEY:
+        try:
+            result = _chat([
+                {"role": "system", "content": 'Trích xuất metadata và chỉ trả về JSON hợp lệ: {"topic": "...", "entities": ["..."], "category": "policy|hr|it|finance", "language": "vi|en"}'},
+                {"role": "user", "content": text},
+            ], max_tokens=150)
+            metadata = _parse_json_object(result)
+            if metadata:
+                return metadata
+        except Exception as error:
+            print(f"  ⚠️  OpenRouter metadata failed: {error}")
+    return _fallback_metadata(text)
 
 
 # ─── Combined Single-Call Mode ───────────────────────────
@@ -159,30 +191,30 @@ def _enrich_single_call(text: str, source: str) -> dict:
 
     ⚠️ Cost optimization: 1 API call thay vì 4 calls riêng lẻ.
     """
-    # TODO: Implement combined enrichment (1 call/chunk)
-    # if OPENROUTER_API_KEY:
-    #     try:
-    #         import json as _json
-    #         from openai import OpenAI
-    #         client = create_llm_client()
-    #         resp = client.chat.completions.create(
-    #             model=OPENROUTER_MODEL,
-    #             messages=[
-    #                 {"role": "system", "content": """Phân tích đoạn văn và trả về JSON:
-    # {
-    #   "summary": "tóm tắt 2-3 câu",
-    #   "questions": ["câu hỏi 1", "câu hỏi 2", "câu hỏi 3"],
-    #   "context": "1 câu mô tả đoạn văn nằm ở đâu trong tài liệu",
-    #   "metadata": {"topic": "...", "entities": ["..."], "category": "policy|hr|it|finance", "language": "vi|en"}
-    # }"""},
-    #                 {"role": "user", "content": f"Tài liệu: {source}\n\nĐoạn văn:\n{text}"},
-    #             ],
-    #             max_tokens=400,
-    #         )
-    #         return _json.loads(resp.choices[0].message.content)
-    #     except Exception as e:
-    #         print(f"  ⚠️  Enrichment API failed: {e}")
-    return {}
+    if OPENROUTER_API_KEY:
+        try:
+            result = _chat([
+                {"role": "system", "content": """Phân tích đoạn văn và chỉ trả về một JSON object hợp lệ:
+{
+  "summary": "tóm tắt 2-3 câu",
+  "questions": ["câu hỏi 1", "câu hỏi 2", "câu hỏi 3"],
+  "context": "một câu mô tả đoạn văn nằm ở đâu trong tài liệu",
+  "metadata": {"topic": "...", "entities": ["..."], "category": "policy|hr|it|finance", "language": "vi|en"}
+}"""},
+                {"role": "user", "content": f"Tài liệu: {source}\n\nĐoạn văn:\n{text}"},
+            ], max_tokens=400)
+            parsed = _parse_json_object(result)
+            if parsed:
+                return parsed
+        except Exception as error:
+            print(f"  ⚠️  OpenRouter combined enrichment failed: {error}")
+
+    return {
+        "summary": _extractive_summary(text),
+        "questions": _fallback_questions(text, 3),
+        "context": f"Trích từ {source}." if source else "",
+        "metadata": _fallback_metadata(text),
+    }
 
 
 # ─── Full Enrichment Pipeline ────────────────────────────
@@ -232,7 +264,9 @@ def enrich_chunks(
             enriched_text=enriched_text,
             summary=summary,
             hypothesis_questions=questions,
-            auto_metadata={**chunk.get("metadata", {}), **auto_meta},
+            # Original evidence wins on collisions: an LLM must never rewrite
+            # source/version identifiers used to resolve policy conflicts.
+            auto_metadata={**auto_meta, **chunk.get("metadata", {})},
             method="+".join(methods),
         ))
 

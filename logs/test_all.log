@@ -1,0 +1,46 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.16, pytest-9.1.1, pluggy-1.6.0 -- /home/tofu/Projects/K34-Day18-2A20260135-NguyenThanhPhuc/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/tofu/Projects/K34-Day18-2A20260135-NguyenThanhPhuc
+plugins: anyio-4.14.2
+collecting ... collected 37 items
+
+tests/test_m1.py::test_basic_returns_chunks PASSED                       [  2%]
+tests/test_m1.py::test_basic_type PASSED                                 [  5%]
+tests/test_m1.py::test_semantic_returns_chunks PASSED                    [  8%]
+tests/test_m1.py::test_semantic_type PASSED                              [ 10%]
+tests/test_m1.py::test_semantic_groups_by_topic PASSED                   [ 13%]
+tests/test_m1.py::test_hierarchical_returns_both PASSED                  [ 16%]
+tests/test_m1.py::test_hierarchical_children_have_parent_id PASSED       [ 18%]
+tests/test_m1.py::test_hierarchical_valid_parent_ids PASSED              [ 21%]
+tests/test_m1.py::test_hierarchical_children_smaller PASSED              [ 24%]
+tests/test_m1.py::test_structure_returns_chunks PASSED                   [ 27%]
+tests/test_m1.py::test_structure_preserves_headers PASSED                [ 29%]
+tests/test_m1.py::test_structure_has_section_metadata PASSED             [ 32%]
+tests/test_m1.py::test_compare_all_strategies PASSED                     [ 35%]
+tests/test_m2.py::test_segment_returns_string PASSED                     [ 37%]
+tests/test_m2.py::test_bm25_search PASSED                                [ 40%]
+tests/test_m2.py::test_bm25_relevant_first PASSED                        [ 43%]
+tests/test_m2.py::test_rrf_merges PASSED                                 [ 45%]
+tests/test_m2.py::test_rrf_method PASSED                                 [ 48%]
+tests/test_m3.py::test_rerank_returns PASSED                             [ 51%]
+tests/test_m3.py::test_rerank_type PASSED                                [ 54%]
+tests/test_m3.py::test_rerank_sorted PASSED                              [ 56%]
+tests/test_m3.py::test_rerank_relevant_first PASSED                      [ 59%]
+tests/test_m3.py::test_benchmark_stats PASSED                            [ 62%]
+tests/test_m4.py::test_load_test_set PASSED                              [ 64%]
+tests/test_m4.py::test_evaluate_returns_metrics PASSED                   [ 67%]
+tests/test_m4.py::test_failure_analysis_returns PASSED                   [ 70%]
+tests/test_m4.py::test_failure_has_diagnosis PASSED                      [ 72%]
+tests/test_m5.py::test_summarize_returns_string PASSED                   [ 75%]
+tests/test_m5.py::test_summarize_shorter_than_original PASSED            [ 78%]
+tests/test_m5.py::test_hyqa_returns_list PASSED                          [ 81%]
+tests/test_m5.py::test_hyqa_generates_questions PASSED                   [ 83%]
+tests/test_m5.py::test_contextual_prepend_returns_string PASSED          [ 86%]
+tests/test_m5.py::test_contextual_contains_original PASSED               [ 89%]
+tests/test_m5.py::test_extract_metadata_returns_dict PASSED              [ 91%]
+tests/test_m5.py::test_enrich_chunks_returns_list PASSED                 [ 94%]
+tests/test_m5.py::test_enrich_chunks_type PASSED                         [ 97%]
+tests/test_m5.py::test_enrich_preserves_original PASSED                  [100%]
+
+======================== 37 passed in 154.02s (0:02:34) ========================

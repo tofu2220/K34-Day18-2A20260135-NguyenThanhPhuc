@@ -1,0 +1,30 @@
+🔍 Kiểm tra bài nộp Lab 18: Production RAG
+
+📁 Source code:
+  ✅ src/m1_chunking.py
+  ✅ src/m2_search.py
+  ✅ src/m3_rerank.py
+  ✅ src/m4_eval.py
+  ✅ src/pipeline.py
+
+📊 Reports:
+  ❌ THIẾU: reports/ragas_report.json
+  ⚠️  Optional: reports/naive_baseline_report.json
+
+📝 Analysis:
+  ✅ analysis/failure_analysis.md
+  ✅ analysis/group_report.md
+
+👤 Individual reflections:
+  ✅ analysis/reflections/reflection_TEMPLATE.md
+
+🔧 TODO markers:
+  ✅ Không còn TODO nào
+
+🧪 Auto-tests:
+  ⚠️  pytest error: Command '['/home/tofu/Projects/K34-Day18-2A20260135-NguyenThanhPhuc/.venv/bin/python3', '-m', 'pytest', 'tests/', '-v', '--tb=no', '-q']' timed out after 120 seconds
+  ⚠️  Không chạy được tests
+
+==================================================
+❌ Có 1 lỗi. Sửa trước khi nộp.
+==================================================
