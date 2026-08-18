@@ -1,0 +1,19 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.16, pytest-9.1.1, pluggy-1.6.0 -- /home/tofu/Projects/K34-Day18-2A20260135-NguyenThanhPhuc/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/tofu/Projects/K34-Day18-2A20260135-NguyenThanhPhuc
+plugins: anyio-4.14.2
+collecting ... collected 4 items
+
+tests/test_m4.py::test_load_test_set PASSED                              [ 25%]
+tests/test_m4.py::test_evaluate_returns_metrics PASSED                   [ 50%]
+tests/test_m4.py::test_failure_analysis_returns PASSED                   [ 75%]
+tests/test_m4.py::test_failure_has_diagnosis PASSED                      [100%]
+
+=============================== warnings summary ===============================
+tests/test_m4.py::test_evaluate_returns_metrics
+  /home/tofu/Projects/K34-Day18-2A20260135-NguyenThanhPhuc/tests/../src/m4_eval.py:83: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the langchain-huggingface package and should be used instead. To use it run `pip install -U langchain-huggingface` and import as `from langchain_huggingface import HuggingFaceEmbeddings`.
+    embeddings = HuggingFaceEmbeddings(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 4 passed, 1 warning in 23.63s =========================
