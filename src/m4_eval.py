@@ -31,7 +31,7 @@ def evaluate_ragas(questions: list[str], answers: list[str],
                    contexts: list[list[str]], ground_truths: list[str]) -> dict:
     """Run RAGAS evaluation."""
     # TODO: Implement RAGAS evaluation
-    # 1. Wrap trong try/except — RAGAS cần OPENAI_API_KEY và Python 3.11+.
+    # 1. Wrap trong try/except — RAGAS dùng OpenRouter judge và Python 3.11+.
     # try:
     #     from ragas import evaluate
     #     from ragas.metrics import faithfulness, answer_relevancy, context_precision, context_recall
